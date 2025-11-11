@@ -60,3 +60,15 @@ app.use(limiter);
     console.log("Failed to start the server", error);
   }
 })();
+
+const handleServerShutdown = async () => {
+  try {
+    console.log("Server is shutting down...");
+    process.exit(0);
+  } catch (error) {
+    console.log("Error during server shutdown", error);
+  }
+};
+
+process.on("SIGINT", handleServerShutdown);
+process.on("SIGTERM", handleServerShutdown);
