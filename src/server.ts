@@ -8,7 +8,9 @@ import helmet from "helmet";
 import type { CorsOptions } from "cors";
 
 import config from "@/config";
+
 import limiter from "@/lib/express_rate_limit";
+import { connectToDatabase, disconnectFromDatabase } from "@/lib/mongoose";
 
 import router from "@/routes/v1";
 
@@ -47,6 +49,8 @@ app.use(limiter);
 
 (async () => {
   try {
+    await connectToDatabase();
+
     app.use("/api/v1", router);
 
     app.listen(PORT, () => {
@@ -63,6 +67,8 @@ app.use(limiter);
 
 const handleServerShutdown = async () => {
   try {
+    await disconnectFromDatabase();
+
     console.log("Server is shutting down...");
     process.exit(0);
   } catch (error) {
