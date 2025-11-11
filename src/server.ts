@@ -10,6 +10,8 @@ import type { CorsOptions } from "cors";
 import config from "@/config";
 import limiter from "@/lib/express_rate_limit";
 
+import router from "@/routes/v1";
+
 const app = express();
 
 const { PORT, NODE_ENV } = config;
@@ -45,11 +47,7 @@ app.use(limiter);
 
 (async () => {
   try {
-    app.get("/", (req, res) => {
-      res.json({
-        message: "Welcome to the blog API",
-      });
-    });
+    app.use("/api/v1", router);
 
     app.listen(PORT, () => {
       console.log(`Blog API running on: http://localhost:${PORT}`);
