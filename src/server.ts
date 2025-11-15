@@ -14,6 +14,8 @@ import { connectToDatabase, disconnectFromDatabase } from "@/lib/mongoose";
 
 import router from "@/routes/v1";
 
+import { logger } from "@/lib/winston";
+
 const app = express();
 
 const { PORT, NODE_ENV } = config;
@@ -27,6 +29,7 @@ const corsOptions: CorsOptions = {
         new Error(`CORS error: ${origin} is not allowed in cors`),
         false
       );
+      logger.warn(`CORS error: ${origin} is not allowed in cors`);
     }
   },
 };
@@ -54,14 +57,14 @@ app.use(limiter);
     app.use("/api/v1", router);
 
     app.listen(PORT, () => {
-      console.log(`Blog API running on: http://localhost:${PORT}`);
+      logger.info(`Blog API running on: http://localhost:${PORT}`);
     });
 
     if (NODE_ENV === "production") {
-      process.exit(1); //
+      process.exit(1);
     }
   } catch (error) {
-    console.log("Failed to start the server", error);
+    logger.error("Failed to start the server", error);
   }
 })();
 
@@ -69,10 +72,10 @@ const handleServerShutdown = async () => {
   try {
     await disconnectFromDatabase();
 
-    console.log("Server is shutting down...");
+    logger.warn("Server is shutting down...");
     process.exit(0);
   } catch (error) {
-    console.log("Error during server shutdown", error);
+    logger.error("Error during server shutdown", error);
   }
 };
 
