@@ -51,14 +51,13 @@ const register = async (req: Request, res: Response): Promise<void> => {
       token: refreshToken,
       user: newUser._id,
     });
-    logger.info(
-      `Refresh token stored for user: ${newUser._id} and token: ${refreshToken}`
-    );
+    logger.info(`Refresh token stored for user: ${newUser._id}`);
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: NODE_ENV === "production",
       sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.status(201).json({
@@ -75,13 +74,12 @@ const register = async (req: Request, res: Response): Promise<void> => {
       `New user: ${newUser.username} registered with email: ${newUser.email} and role: ${newUser.role}`
     );
   } catch (error) {
+    logger.error("Error during user registration", error);
+
     res.status(500).json({
       code: "ServerError",
       message: "Internal server error",
-      error: error,
     });
-
-    logger.error("Error during user registration", error);
   }
 };
 
