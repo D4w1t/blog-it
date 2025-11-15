@@ -14,7 +14,7 @@ if (NODE_ENV !== "production") {
     new winston.transports.Console({
       format: combine(
         colorize({ all: true }),
-        timestamp({ format: "YYYY-MM-DD hh:mm:ss A" }),
+        timestamp({ format: "YYYY-MM-DD hh:mm:ss" }),
         errors({ stack: true }),
         align(),
         printf(({ timestamp, level, message, ...meta }) => {
@@ -22,7 +22,7 @@ if (NODE_ENV !== "production") {
             ? `\n${JSON.stringify(meta)}`
             : "";
 
-          return `${timestamp} [${level.toUpperCase()}]: ${message}${metaStr}`;
+          return `${timestamp} [${level}]: ${message}${metaStr}`;
         })
       ),
     })
