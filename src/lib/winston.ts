@@ -27,6 +27,17 @@ if (NODE_ENV !== "production") {
       ),
     })
   );
+} else {
+  transports.push(
+    new winston.transports.File({
+      filename: "logs/app.log",
+      format: combine(
+        timestamp(),
+        errors({ stack: true }),
+        json()
+      ),
+    })
+  );
 }
 
 const logger = winston.createLogger({
