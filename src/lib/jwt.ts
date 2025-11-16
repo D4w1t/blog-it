@@ -25,10 +25,10 @@ export const generateRefreshToken = (userId: Types.ObjectId): string => {
   });
 };
 
-export const verifyAccessToken = (token: string) => {
+export const verifyAccessToken = (token: string): string | jwt.JwtPayload => {
   return jwt.verify(token, JWT_ACCESS_SECRET);
 };
 
-export const verifyRefreshToken = (token: string) => {
+export const verifyRefreshToken = (token: string): string | jwt.JwtPayload => {
   return jwt.verify(token, JWT_REFRESH_SECRET);
 };

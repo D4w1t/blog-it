@@ -17,14 +17,14 @@ type UserData = Pick<IUser, "email" | "password">;
 const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body as UserData;
 
-  const { NODE_ENV } = config;
+  const { NODE_ENV, REFRESH_TOKEN_EXPIRY } = config;
 
   try {
     // sample output: { _id: ..., username: ..., email: ..., password: ..., role: ..., ... }
     const user = await User.findOne({ email }).select("+password"); // explicitly include password field
 
     if (!user) {
-      logger.warn("Invalid attempt!");
+      logger.warn(`Failed login attempt for email: ${email}, IP: ${req.ip}`);
       res.status(401).json({
         success: false,
         code: "Unauthorized",
@@ -36,7 +36,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      logger.warn("Invalid attempt!");
+      logger.warn(`Failed login attempt for email: ${email}, IP: ${req.ip}`);
       res.status(401).json({
         success: false,
         code: "Unauthorized",
@@ -49,7 +49,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    //Remove existing refresh tokens for the user
+    // Remove existing refresh tokens for the user
     await Token.deleteMany({ user: user._id });
 
     // Store refresh token in db
@@ -64,7 +64,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       httpOnly: true,
       secure: NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: Number(REFRESH_TOKEN_EXPIRY),
     });
 
     res.status(200).json({
