@@ -64,7 +64,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       user: {
         username: user.username,
@@ -79,6 +79,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
     logger.error("Error during user login", error);
 
     res.status(500).json({
+      success: false,
       code: "ServerError",
       message: "Internal server error",
     });
