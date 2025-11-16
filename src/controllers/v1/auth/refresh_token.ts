@@ -34,7 +34,7 @@ const refreshToken = async (req: Request, res: Response) => {
     // Generate new access token
     const accessToken = generateAccessToken(jwtPayload.userId);
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       accessToken,
     });
