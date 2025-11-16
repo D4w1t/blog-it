@@ -10,7 +10,6 @@ import User from "@/models/user";
 
 // Middlewares
 import validationError from "@/middlewares/validationError";
-import { ref } from "process";
 
 const router = Router();
 
