@@ -63,6 +63,7 @@ router.post(
 
   body("email")
     .trim()
+    .normalizeEmail()
     .notEmpty()
     .withMessage("Email is required")
     .isEmail()

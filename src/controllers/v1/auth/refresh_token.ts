@@ -14,6 +14,12 @@ const refreshToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken as string;
 
   try {
+    // Verify Refresh Token
+    // Sample output: { userId: ..., iat: ..., exp: ..., sub: "refreshToken" }
+    const jwtPayload = verifyRefreshToken(refreshToken) as {
+      userId: Types.ObjectId;
+    };
+
     const existingToken = await Token.exists({ token: refreshToken });
 
     if (!existingToken) {
@@ -24,12 +30,6 @@ const refreshToken = async (req: Request, res: Response) => {
       });
       return;
     }
-
-    //verify Refresh Token
-    // sample output: { userId: ..., iat: ..., exp: ..., sub: "refreshToken" }
-    const jwtPayload = verifyRefreshToken(refreshToken) as {
-      userId: Types.ObjectId;
-    };
 
     // Generate new access token
     const accessToken = generateAccessToken(jwtPayload.userId);
@@ -42,9 +42,14 @@ const refreshToken = async (req: Request, res: Response) => {
     logger.error("Error refreshing token:", error);
 
     if (error instanceof TokenExpiredError) {
+      // delete expired refresh token from db
+      await Token.deleteOne({ token: refreshToken });
+
+      res.clearCookie("refreshToken");
+
       res.status(401).json({
         success: false,
-        code: "AuthenticationError",
+        code: "Unauthorized",
         message: "Refresh token has expired, please log in again",
       });
       return;
@@ -53,7 +58,7 @@ const refreshToken = async (req: Request, res: Response) => {
     if (error instanceof JsonWebTokenError) {
       res.status(401).json({
         success: false,
-        code: "AuthenticationError",
+        code: "Unauthorized",
         message: "Invalid refresh token",
       });
       return;

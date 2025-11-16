@@ -49,6 +49,9 @@ const login = async (req: Request, res: Response): Promise<void> => {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
+    //Remove existing refresh tokens for the user
+    await Token.deleteMany({ user: user._id });
+
     // Store refresh token in db
     // sample output: { _id: ..., token: ..., user: ... }
     await Token.create({
