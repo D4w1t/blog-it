@@ -18,7 +18,7 @@ const logout = async (req: Request, res: Response): Promise<void> => {
 
       logger.info("User refresh token deleted on logout", {
         userId: req.userId,
-        token: refreshToken,
+        token: typeof refreshToken === "string" ? `***${refreshToken.slice(-4)}` : undefined,
       });
 
       // Clear cookie
