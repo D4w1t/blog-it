@@ -21,7 +21,7 @@ const deleteCurrentUser = async (
     logger.info(`User deleted successfully (ID: ${userId})`);
 
     // Delete all tokens associated with the user (e.g., refresh tokens)
-    await Token.deleteMany({ userId });
+    await Token.deleteMany({ user: userId });
     logger.info(`Tokens deleted for user (ID: ${userId})`);
 
     // Clear the refresh token cookie
@@ -32,7 +32,6 @@ const deleteCurrentUser = async (
     });
 
     res.sendStatus(204);
-    
   } catch (error) {
     logger.error("Error deleting current user:", error);
 
