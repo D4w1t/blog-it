@@ -39,7 +39,7 @@ const authorize = (roles: AuthRole[]) => {
 
       return next();
     } catch (error) {
-        logger.error(`Authorization error for user ID ${userId}: ${error}`);
+        logger.error(`Authorization error for user ID ${userId}: `, error);
 
         res.status(500).json({
           success: false,

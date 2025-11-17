@@ -8,8 +8,17 @@ const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.userId;
 
-    const user = await User.findById(userId).select("-__v").lean().exec(); // Exclude __v field
+    const user = await User.findById(userId).select("-__v -password").lean().exec(); // Exclude __v and password fields
 
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        code: "NotFound",
+        message: "User not found",
+      });
+      return;
+    }
+    
     res.status(200).json({
       success: true,
       user,
