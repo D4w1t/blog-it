@@ -33,10 +33,10 @@ router.put(
     .trim()
     .isLength({ min: 3, max: 20 })
     .withMessage("Username must be between 3 and 20 characters")
-    .custom(async (value) => {
-      const existingUsername = await User.exists({ username: value });
+    .custom(async (value , { req }) => {
+      const existingUsername = await User.findOne({ username: value });
 
-      if (existingUsername) {
+      if (existingUsername && existingUsername._id.toString() !== req.userId) {
         throw new Error("Username is already in use");
       }
     }),
@@ -48,10 +48,10 @@ router.put(
     .withMessage("Invalid email format")
     .isLength({ max: 50 })
     .withMessage("Email must be at most 50 characters")
-    .custom(async (value) => {
-      const existingUser = await User.exists({ email: value });
+    .custom(async (value, { req }) => {
+      const existingUser = await User.findOne({ email: value });
 
-      if (existingUser) {
+      if (existingUser && existingUser._id.toString() !== req.userId) {
         throw new Error("Email is already in use");
       }
     }),
