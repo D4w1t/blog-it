@@ -10,6 +10,7 @@ import authorize from "@/middlewares/authorize";
 // Controller
 import getCurrentUser from "@/controllers/v1/user/get_current_user";
 import updateCurrentUser from "@/controllers/v1/user/update_current_user";
+import deleteCurrentUser from "@/controllers/v1/user/delete_current_user";
 
 // Model
 import User from "@/models/user";
@@ -33,7 +34,7 @@ router.put(
     .trim()
     .isLength({ min: 3, max: 20 })
     .withMessage("Username must be between 3 and 20 characters")
-    .custom(async (value , { req }) => {
+    .custom(async (value, { req }) => {
       const existingUsername = await User.findOne({ username: value });
 
       if (existingUsername && existingUsername._id.toString() !== req.userId) {
@@ -87,6 +88,13 @@ router.put(
 
   validationError,
   updateCurrentUser
+);
+
+router.delete(
+  "/current",
+  authenticate,
+  authorize(["user", "admin"]),
+  deleteCurrentUser
 );
 
 export default router;
