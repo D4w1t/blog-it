@@ -13,25 +13,50 @@ const logout = async (req: Request, res: Response): Promise<void> => {
 
     const refreshToken = req.cookies.refreshToken;
 
-    if (refreshToken) {
-      await Token.deleteOne({ token: refreshToken });
-
-      logger.info("User refresh token deleted on logout", {
+    if (!refreshToken) {
+      logger.warn("Logout attempted without refresh token", {
         userId: req.userId,
-        token: typeof refreshToken === "string" ? `***${refreshToken.slice(-4)}` : undefined,
       });
 
-      // Clear cookie
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: NODE_ENV === "production",
-        sameSite: "strict",
+      res.status(401).json({
+        success: false,
+        code: "Unauthorized",
+        message: "You are already logged out",
       });
+      return;
     }
 
-    res.sendStatus(204); // No Content
+    const token = await Token.findOneAndDelete({ token: refreshToken });
 
-    logger.info("User logged out successfully", { userId: req.userId });
+    if (!token) {
+      logger.warn("Invalid refresh token on logout", {
+        userId: req.userId,
+      });
+
+      res.status(401).json({
+        success: false,
+        code: "Unauthorized",
+        message: "Session already expired or invalid",
+      });
+      return;
+    }
+
+    logger.info("User logged out successfully and refresh token deleted", {
+      userId: req.userId,
+      token:
+        typeof refreshToken === "string"
+          ? `***${refreshToken.slice(-4)}`
+          : undefined,
+    });
+
+    // Clear cookie
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.sendStatus(204); // No Content
   } catch (error) {
     logger.error("Error during user logout", error);
 
