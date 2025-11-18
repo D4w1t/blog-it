@@ -10,6 +10,8 @@ import authorize from "@/middlewares/authorize";
 // Controller
 import getCurrentUser from "@/controllers/v1/user/get_current_user";
 import updateCurrentUser from "@/controllers/v1/user/update_current_user";
+import deleteCurrentUser from "@/controllers/v1/user/delete_current_user";
+import getAllUsers from "@/controllers/v1/user/get_all_user";
 
 // Model
 import User from "@/models/user";
@@ -33,7 +35,7 @@ router.put(
     .trim()
     .isLength({ min: 3, max: 20 })
     .withMessage("Username must be between 3 and 20 characters")
-    .custom(async (value , { req }) => {
+    .custom(async (value, { req }) => {
       const existingUsername = await User.findOne({ username: value });
 
       if (existingUsername && existingUsername._id.toString() !== req.userId) {
@@ -87,6 +89,31 @@ router.put(
 
   validationError,
   updateCurrentUser
+);
+
+router.delete(
+  "/current",
+  authenticate,
+  authorize(["user", "admin"]),
+  deleteCurrentUser
+);
+
+router.get(
+  "/",
+  authenticate,
+  authorize(["admin"]),
+
+  query("limit")
+    .optional()
+    .isInt({ min: 1, max: 50 })
+    .withMessage("Limit must be an integer between 1 and 50"),
+  query("offset")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Offset must be a positive integer"),
+
+  validationError,
+  getAllUsers
 );
 
 export default router;
