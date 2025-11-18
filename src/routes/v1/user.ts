@@ -13,6 +13,7 @@ import updateCurrentUser from "@/controllers/v1/user/update_current_user";
 import deleteCurrentUser from "@/controllers/v1/user/delete_current_user";
 import getAllUsers from "@/controllers/v1/user/get_all_user";
 import getUserById from "@/controllers/v1/user/get_user_by_id";
+import deleteUserById from "@/controllers/v1/user/delete_user_by_id";
 
 // Model
 import User from "@/models/user";
@@ -122,13 +123,21 @@ router.get(
   authenticate,
   authorize(["admin"]),
 
-  param("userId")
-    .notEmpty()
-    .isMongoId()
-    .withMessage("Invalid user ID"),
+  param("userId").notEmpty().isMongoId().withMessage("Invalid user ID"),
 
   validationError,
   getUserById
+);
+
+router.delete(
+  "/:userId",
+  authenticate,
+  authorize(["admin"]),
+
+  param("userId").notEmpty().isMongoId().withMessage("Invalid user ID"),
+
+  validationError,
+  deleteUserById
 );
 
 export default router;
