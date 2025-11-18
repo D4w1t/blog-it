@@ -25,6 +25,8 @@ const config = {
       return [];
     }
   })(),
+  defaultResLimit: 20,
+  defaultResOffset: 0,
 };
 
 export default config;
