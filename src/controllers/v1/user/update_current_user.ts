@@ -1,5 +1,7 @@
 import { logger } from "@/lib/winston";
 
+import bcrypt from "bcrypt";
+
 import User from "@/models/user";
 
 import type { Request, Response } from "express";
@@ -14,6 +16,7 @@ const updateCurrentUser = async (
     username,
     email,
     password,
+    currentPassword,
     firstName,
     lastName,
     website,
@@ -36,10 +39,43 @@ const updateCurrentUser = async (
       return;
     }
 
+    // Update password if provided
+    if (password) {
+      // Require current password in the request body
+      if (!req.body.currentPassword) {
+        res.status(400).json({
+          success: false,
+          code: "BadRequest",
+          message: "Current password is required to update password",
+        });
+        return;
+      }
+
+      if (!user.password) {
+        res.status(500).json({
+          success: false,
+          code: "ServerError",
+          message: "Stored password is missing for the user",
+        });
+        return;
+      }
+      
+      // Compare current password with stored password using bcrypt
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        res.status(401).json({
+          success: false,
+          code: "Unauthorized",
+          message: "Current password is incorrect",
+        });
+        return;
+      }
+      user.password = password;
+    }
+
     // Update fields if they are provided in the request body
     if (username) user.username = username;
     if (email) user.email = email;
-    if (password) user.password = password;
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
 
