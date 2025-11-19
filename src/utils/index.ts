@@ -11,3 +11,17 @@ export const genUsername = (): string => {
 
   return username;
 };
+
+// Generate random slug from title
+export const generateSlug = (title: string): string => {
+  const slugBase = title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-"); // Replace multiple hyphens with a single hyphen
+
+  const uniqueId = uuidv4().split("-")[0]; // Use first segment of UUID
+
+  return `${slugBase}-${uniqueId}`;
+};
