@@ -51,7 +51,7 @@ const uploadBlogBanner = (method: "post" | "put") => {
         // blog?.banner.publicId.replace("blog_api/", "")
       );
 
-      if (!data || !data.publicId || !data.url) {
+      if (!data) {
         logger.error("Cloudinary upload failed: No data returned", {
           // blogId,
           // publicId: blog?.banner.publicId,
